@@ -15,6 +15,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var outputAllocation: Allocation
     private lateinit var inputAllocation: Allocation
     private lateinit var cameraManager: CameraManager
     private lateinit var cameraHelper: CameraHelper
@@ -38,11 +39,23 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun surfaceCreated(holder: SurfaceHolder) {
-                val size = cameraHelper.configureSurfaces(cameraPreview1)
+                val size = cameraHelper.configureSurfaces(cameraPreview1, cameraResult)
                 initRs(size!!.width, size!!.height)
                 cameraHelper.addSurface(holder.surface)
                 cameraHelper.addSurface(inputAllocation.surface)
                 cameraHelper.openCamera()
+            }
+        })
+        cameraResult.holder.addCallback(object : SurfaceHolder.Callback {
+            override fun surfaceChanged(holder: SurfaceHolder, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun surfaceDestroyed(p0: SurfaceHolder?) {
+            }
+
+            override fun surfaceCreated(holder: SurfaceHolder) {
+                outputAllocation.surface = holder.surface
             }
 
         })
@@ -59,10 +72,15 @@ class MainActivity : AppCompatActivity() {
             rs, yuvTypeBuilder.create(),
             Allocation.USAGE_IO_INPUT or Allocation.USAGE_SCRIPT
         )
-        inputAllocation.setOnBufferAvailableListener {
-            it.ioReceive()
-            bwScript._in = inputAllocation
-//            bwScript.forEach_identity(inputAllocation)
-        }
+
+        val rgbTypeBuilder = Type.Builder(rs, Element.RGBA_8888(rs))
+        rgbTypeBuilder.setX(width)
+        rgbTypeBuilder.setY(height)
+        outputAllocation = Allocation.createTyped(
+            rs, rgbTypeBuilder.create(),
+            Allocation.USAGE_IO_OUTPUT or Allocation.USAGE_SCRIPT
+        )
+
+        ProcessingTask(inputAllocation, outputAllocation, bwScript)
     }
 }

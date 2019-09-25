@@ -26,7 +26,7 @@ class CameraHelper(private val cameraManager: CameraManager, private val cameraI
 
     fun isCameraOpened() = currentCamera == null
 
-    fun configureSurfaces(surface: FixedAspectSurfaceView): Size? {
+    fun configureSurfaces(surface: FixedAspectSurfaceView, outputSurface: FixedAspectSurfaceView): Size? {
         // Find a good size for output - largest 16:9 aspect ratio that's less than 720p
         val MAX_WIDTH = 1280
         val TARGET_ASPECT = 16f / 9f
@@ -54,6 +54,9 @@ class CameraHelper(private val cameraManager: CameraManager, private val cameraI
 //         Configure the output view - this will fire surfaceChanged
         surface.setAspectRatio(outputAspect)
         surface.holder.setFixedSize(outputSize.width, outputSize.height)
+
+        outputSurface.setAspectRatio(outputAspect)
+        outputSurface.holder.setFixedSize(outputSize.width, outputSize.height)
 
         return outputSize
     }
