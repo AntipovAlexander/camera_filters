@@ -10,6 +10,8 @@ import android.renderscript.RenderScript
 import android.renderscript.Type
 import android.view.SurfaceHolder
 import androidx.appcompat.app.AppCompatActivity
+import com.antipov.camerafiltersidp.pager.FiltersAdapter
+import com.antipov.camerafiltersidp.pager.StackTransformer
 import com.antipov.coroutines.idp_renderscript.ScriptC_bw
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -25,6 +27,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        viewPager.apply {
+            adapter = FiltersAdapter(supportFragmentManager)
+            setPageTransformer(true, StackTransformer())
+            offscreenPageLimit = 1
+        }
 
         cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
         cameraHelper = CameraHelper(cameraManager, "0")
