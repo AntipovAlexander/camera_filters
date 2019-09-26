@@ -25,39 +25,26 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        // We fit the aspect ratio of TextureView to the size of preview we picked.
 
         cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
         cameraHelper = CameraHelper(cameraManager, "0")
 
-
-        cameraPreview1.holder.addCallback(object : SurfaceHolder.Callback {
-            override fun surfaceChanged(holder: SurfaceHolder, p1: Int, p2: Int, p3: Int) {
-            }
-
-            override fun surfaceDestroyed(p0: SurfaceHolder?) {
-            }
-
-            override fun surfaceCreated(holder: SurfaceHolder) {
-                val size = cameraHelper.configureSurfaces(cameraPreview1, cameraResult)
-                initRs(size!!.width, size!!.height)
-                cameraHelper.addSurface(holder.surface)
-                cameraHelper.addSurface(inputAllocation.surface)
-                cameraHelper.openCamera()
-            }
-        })
         cameraResult.holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceChanged(holder: SurfaceHolder, p1: Int, p2: Int, p3: Int) {
 
             }
 
             override fun surfaceDestroyed(p0: SurfaceHolder?) {
+
             }
 
             override fun surfaceCreated(holder: SurfaceHolder) {
+                val size = cameraHelper.configureSurfaces(cameraResult)
+                initRs(size!!.width, size!!.height)
+                cameraHelper.addSurface(inputAllocation.surface)
+                cameraHelper.openCamera()
                 outputAllocation.surface = holder.surface
             }
-
         })
     }
 
