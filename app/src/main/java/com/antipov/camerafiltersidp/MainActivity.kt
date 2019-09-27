@@ -8,7 +8,7 @@ import android.renderscript.Allocation
 import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.Type
-import android.view.SurfaceHolder
+import android.util.Size
 import androidx.appcompat.app.AppCompatActivity
 import com.antipov.camerafiltersidp.filters.BlackAndWhiteFilter
 import com.antipov.camerafiltersidp.filters.IdentityFilter
@@ -18,56 +18,47 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var previewSize: Size
     private lateinit var outputAllocation: Allocation
     private lateinit var inputAllocation: Allocation
     private lateinit var cameraManager: CameraManager
     private lateinit var cameraHelper: CameraHelper
     private lateinit var rs: RenderScript
-    private lateinit var bwScript: ScriptC_bw
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
         cameraHelper = CameraHelper(cameraManager, "0")
+        previewSize = cameraHelper.configureSurfaces(cameraResult)!!
 
         scrollChoice.addItems(listOf("Original","Black & White","test 2","test 3","test 4","test 5","test 6"), 0)
 
-        cameraResult.holder.addCallback(object : SurfaceHolder.Callback {
-            override fun surfaceChanged(holder: SurfaceHolder, p1: Int, p2: Int, p3: Int) {
-
-            }
-
-            override fun surfaceDestroyed(p0: SurfaceHolder?) {
-
-            }
-
-            override fun surfaceCreated(holder: SurfaceHolder) {
-                val size = cameraHelper.configureSurfaces(cameraResult)
-                initRs(size!!.width, size!!.height)
-                cameraHelper.addSurface(inputAllocation.surface)
-                cameraHelper.openCamera()
-                outputAllocation.surface = holder.surface
-                scrollChoice.selectedItemPosition = 0
-                scrollChoice.setOnItemSelectedListener { scrollChoice, position, name ->
-                    when (position) {
-                        0 -> {
-                            val f = IdentityFilter(inputAllocation, outputAllocation, ScriptC_identity(rs))
-                            f.setup()
-                        }
-                        1 -> {
-                            val f = BlackAndWhiteFilter(inputAllocation, outputAllocation, ScriptC_bw(rs))
-                            f.setup()
-                        }
+        cameraResult.holder.addCallback(SurfaceCreateCallback(onSurfaceCreated = { holder ->
+            initRs(previewSize.width, previewSize.height)
+            cameraHelper.addSurface(inputAllocation.surface)
+            cameraHelper.openCamera()
+            outputAllocation.surface = holder.surface
+            scrollChoice.selectedItemPosition = 0
+            scrollChoice.setOnItemSelectedListener { scrollChoice, position, name ->
+                when (position) {
+                    0 -> {
+                        val f =
+                            IdentityFilter(inputAllocation, outputAllocation, ScriptC_identity(rs))
+                        f.setup()
+                    }
+                    1 -> {
+                        val f =
+                            BlackAndWhiteFilter(inputAllocation, outputAllocation, ScriptC_bw(rs))
+                        f.setup()
                     }
                 }
             }
-        })
+        }))
     }
 
     private fun initRs(width: Int, height: Int) {
         rs = RenderScript.create(this)
-//        bwScript = ScriptC_bw(rs)
         val yuvTypeBuilder = Type.Builder(rs, Element.YUV(rs))
         yuvTypeBuilder.setX(width)
         yuvTypeBuilder.setY(height)
