@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.HandlerThread
 import android.renderscript.Allocation
 import android.renderscript.Element
 import android.renderscript.RenderScript
@@ -19,6 +21,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     private lateinit var previewSize: Size
+    private lateinit var processingHandler: Handler
     private lateinit var outputAllocation: Allocation
     private lateinit var inputAllocation: Allocation
     private lateinit var cameraManager: CameraManager
@@ -32,6 +35,11 @@ class MainActivity : AppCompatActivity() {
         cameraHelper = CameraHelper(cameraManager, "0")
         previewSize = cameraHelper.configureSurfaces()
 
+
+        val processingThread = HandlerThread("Filter handler")
+        processingThread.start()
+        processingHandler = Handler(processingThread.looper)
+
         scrollChoice.addItems(listOf("Original","Black & White","test 2","test 3","test 4","test 5","test 6"), 0)
 
         cameraResult.holder.addCallback(SurfaceCreateCallback(onSurfaceCreated = { holder ->
@@ -44,12 +52,22 @@ class MainActivity : AppCompatActivity() {
                 when (position) {
                     0 -> {
                         val f =
-                            IdentityFilter(inputAllocation, outputAllocation, ScriptC_identity(rs))
+                            IdentityFilter(
+                                inputAllocation,
+                                outputAllocation,
+                                processingHandler,
+                                ScriptC_identity(rs)
+                            )
                         f.setup()
                     }
                     1 -> {
                         val f =
-                            BlackAndWhiteFilter(inputAllocation, outputAllocation, ScriptC_bw(rs))
+                            BlackAndWhiteFilter(
+                                inputAllocation,
+                                outputAllocation,
+                                processingHandler,
+                                ScriptC_bw(rs)
+                            )
                         f.setup()
                     }
                 }
@@ -75,7 +93,12 @@ class MainActivity : AppCompatActivity() {
             rs, rgbTypeBuilder.create(),
             Allocation.USAGE_IO_OUTPUT or Allocation.USAGE_SCRIPT
         )
-        val f = IdentityFilter(inputAllocation, outputAllocation, ScriptC_identity(rs))
-                            f.setup()
+        val f = IdentityFilter(
+            inputAllocation,
+            outputAllocation,
+            processingHandler,
+            ScriptC_identity(rs)
+        )
+        f.setup()
     }
 }

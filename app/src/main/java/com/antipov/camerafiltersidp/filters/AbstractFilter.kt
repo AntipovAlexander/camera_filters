@@ -1,21 +1,18 @@
 package com.antipov.camerafiltersidp.filters
 
 import android.os.Handler
-import android.os.HandlerThread
 import android.renderscript.Allocation
 
 abstract class AbstractFilter(
     private val inputAllocation: Allocation,
-    private val outputAllocation: Allocation
+    private val outputAllocation: Allocation,
+    private val processingHandler: Handler
 ) : Runnable, Allocation.OnBufferAvailableListener {
-    private lateinit var processingHandler: Handler
+
     private var pendingFrames = 0
 
     fun setup() {
         inputAllocation.setOnBufferAvailableListener(this)
-        val processingThread = HandlerThread(javaClass.canonicalName)
-        processingThread.start()
-        processingHandler = Handler(processingThread.looper)
     }
 
     override fun onBufferAvailable(buffer: Allocation) {
