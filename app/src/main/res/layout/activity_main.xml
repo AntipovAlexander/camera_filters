@@ -15,11 +15,11 @@
 
     <com.webianks.library.scroll_choice.ScrollChoice
         android:id="@+id/scrollChoice"
-        android:layout_width="200dp"
-        android:layout_alignParentRight="true"
+        android:layout_width="match_parent"
         app:scroll_atmospheric="true"
         app:scroll_background_color="#00000000"
-        app:scroll_item_align="center"
+        app:scroll_item_align="right"
+        android:paddingRight="16dp"
         app:scroll_item_text_color="#f5f5f5"
         app:scroll_item_text_size="24sp"
         app:scroll_selected_item_background="#00000000"

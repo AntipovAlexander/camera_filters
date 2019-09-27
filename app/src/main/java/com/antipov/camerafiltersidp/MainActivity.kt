@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
         cameraHelper = CameraHelper(cameraManager, "0")
-        previewSize = cameraHelper.configureSurfaces(cameraResult)!!
+        previewSize = cameraHelper.configureSurfaces()
 
         scrollChoice.addItems(listOf("Original","Black & White","test 2","test 3","test 4","test 5","test 6"), 0)
 

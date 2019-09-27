@@ -23,7 +23,7 @@ class CameraHelper(private val cameraManager: CameraManager, private val cameraI
 
     fun isCameraOpened() = currentCamera == null
 
-    fun configureSurfaces(outputSurface: FixedAspectSurfaceView): Size? {
+    fun configureSurfaces(): Size {
         // Find a good size for output - largest 16:9 aspect ratio that's less than 720p
         val MAX_WIDTH = 1280
         val TARGET_ASPECT = 16f / 9f
@@ -36,20 +36,17 @@ class CameraHelper(private val cameraManager: CameraManager, private val cameraI
         val outputSizes = configs.getOutputSizes(SurfaceHolder::class.java)
 
         var outputSize = outputSizes[0]
-        var outputAspect = outputSize.getWidth().toFloat() / outputSize.getHeight()
+        var outputAspect = outputSize.width.toFloat() / outputSize.height
         for (candidateSize in outputSizes) {
-            if (candidateSize.getWidth() > MAX_WIDTH) continue
-            val candidateAspect = candidateSize.getWidth().toFloat() / candidateSize.getHeight()
+            if (candidateSize.width > MAX_WIDTH) continue
+            val candidateAspect = candidateSize.width.toFloat() / candidateSize.height
             val goodCandidateAspect = Math.abs(candidateAspect - TARGET_ASPECT) < ASPECT_TOLERANCE
             val goodOutputAspect = Math.abs(outputAspect - TARGET_ASPECT) < ASPECT_TOLERANCE
-            if (goodCandidateAspect && !goodOutputAspect || candidateSize.getWidth() > outputSize.getWidth()) {
+            if (goodCandidateAspect && !goodOutputAspect || candidateSize.width > outputSize.width) {
                 outputSize = candidateSize
                 outputAspect = candidateAspect
             }
         }
-
-//        outputSurface.setAspectRatio(outputAspect)
-//        outputSurface.holder.setFixedSize(outputSize.width, outputSize.height)
 
         return outputSize
     }
