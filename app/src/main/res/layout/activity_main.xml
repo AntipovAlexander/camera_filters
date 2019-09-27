@@ -21,7 +21,7 @@
         app:scroll_background_color="#00000000"
         app:scroll_item_align="center"
         app:scroll_item_text_color="#f5f5f5"
-        app:scroll_item_text_size="17sp"
+        app:scroll_item_text_size="24sp"
         app:scroll_selected_item_background="#00000000"
         app:scroll_selected_item_text_color="#FFFFFF"
         android:layout_height="match_parent" />

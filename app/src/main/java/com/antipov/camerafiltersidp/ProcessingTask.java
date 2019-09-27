@@ -3,8 +3,6 @@ package com.antipov.camerafiltersidp;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.renderscript.Allocation;
-import android.renderscript.ScriptIntrinsicYuvToRGB;
-
 import com.antipov.coroutines.idp_renderscript.ScriptC_bw;
 
 class ProcessingTask implements Runnable, Allocation.OnBufferAvailableListener {

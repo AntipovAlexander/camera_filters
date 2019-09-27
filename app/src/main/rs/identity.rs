@@ -22,8 +22,6 @@ uchar4 __attribute__((kernel)) root(int x, int y) {
     float green = f4.g;
     float blue = f4.b;
 
-    float gray = (red + green + blue) / 3;
-
     //Put the values in the output uchar4, note that we keep the alpha value
-    return rsPackColorTo8888(gray, gray, gray, f4.a);
+    return rsPackColorTo8888(red, green, blue, rgba.a);
 }

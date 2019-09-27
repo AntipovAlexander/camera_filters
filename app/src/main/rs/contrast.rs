@@ -1,10 +1,9 @@
 #pragma version(1)
-#pragma rs_fp_relaxed
 #pragma rs java_package_name(com.antipov.coroutines.idp_renderscript)
 
-#include "rs_debug.rsh"
-
 rs_allocation in;
+uint32_t gW;
+uint32_t gH;
 
 uchar4 __attribute__((kernel)) root(int x, int y) {
     uchar Y = rsGetElementAtYuv_uchar_Y(in, x, y);

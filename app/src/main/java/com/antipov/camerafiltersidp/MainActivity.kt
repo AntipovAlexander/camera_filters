@@ -10,7 +10,10 @@ import android.renderscript.RenderScript
 import android.renderscript.Type
 import android.view.SurfaceHolder
 import androidx.appcompat.app.AppCompatActivity
+import com.antipov.camerafiltersidp.filters.BlackAndWhiteFilter
+import com.antipov.camerafiltersidp.filters.IdentityFilter
 import com.antipov.coroutines.idp_renderscript.ScriptC_bw
+import com.antipov.coroutines.idp_renderscript.ScriptC_identity
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -28,7 +31,7 @@ class MainActivity : AppCompatActivity() {
         cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
         cameraHelper = CameraHelper(cameraManager, "0")
 
-        scrollChoice.addItems(listOf("test","test 1","test 2","test 3","test 4","test 5","test 6"), 0)
+        scrollChoice.addItems(listOf("Original","Black & White","test 2","test 3","test 4","test 5","test 6"), 0)
 
         cameraResult.holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceChanged(holder: SurfaceHolder, p1: Int, p2: Int, p3: Int) {
@@ -45,13 +48,26 @@ class MainActivity : AppCompatActivity() {
                 cameraHelper.addSurface(inputAllocation.surface)
                 cameraHelper.openCamera()
                 outputAllocation.surface = holder.surface
+                scrollChoice.selectedItemPosition = 0
+                scrollChoice.setOnItemSelectedListener { scrollChoice, position, name ->
+                    when (position) {
+                        0 -> {
+                            val f = IdentityFilter(inputAllocation, outputAllocation, ScriptC_identity(rs))
+                            f.setup()
+                        }
+                        1 -> {
+                            val f = BlackAndWhiteFilter(inputAllocation, outputAllocation, ScriptC_bw(rs))
+                            f.setup()
+                        }
+                    }
+                }
             }
         })
     }
 
     private fun initRs(width: Int, height: Int) {
         rs = RenderScript.create(this)
-        bwScript = ScriptC_bw(rs)
+//        bwScript = ScriptC_bw(rs)
         val yuvTypeBuilder = Type.Builder(rs, Element.YUV(rs))
         yuvTypeBuilder.setX(width)
         yuvTypeBuilder.setY(height)
@@ -68,7 +84,7 @@ class MainActivity : AppCompatActivity() {
             rs, rgbTypeBuilder.create(),
             Allocation.USAGE_IO_OUTPUT or Allocation.USAGE_SCRIPT
         )
-
-        ProcessingTask(inputAllocation, outputAllocation, bwScript)
+        val f = IdentityFilter(inputAllocation, outputAllocation, ScriptC_identity(rs))
+                            f.setup()
     }
 }
