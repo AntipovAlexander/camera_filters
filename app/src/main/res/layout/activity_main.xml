@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".MainActivity"
     android:fitsSystemWindows="false"
     android:orientation="vertical">
@@ -12,9 +13,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/viewPager"
-        android:layout_width="match_parent"
+    <com.webianks.library.scroll_choice.ScrollChoice
+        android:id="@+id/scrollChoice"
+        android:layout_width="200dp"
+        android:layout_alignParentRight="true"
+        app:scroll_atmospheric="true"
+        app:scroll_background_color="#00000000"
+        app:scroll_item_align="center"
+        app:scroll_item_text_color="#f5f5f5"
+        app:scroll_item_text_size="17sp"
+        app:scroll_selected_item_background="#00000000"
+        app:scroll_selected_item_text_color="#FFFFFF"
         android:layout_height="match_parent" />
 
 </RelativeLayout>
