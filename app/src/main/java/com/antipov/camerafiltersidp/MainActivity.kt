@@ -12,10 +12,10 @@ import android.renderscript.RenderScript
 import android.renderscript.Type
 import android.util.Size
 import androidx.appcompat.app.AppCompatActivity
-import com.antipov.camerafiltersidp.filters.BlackAndWhiteFilter
-import com.antipov.camerafiltersidp.filters.BrickFilter
-import com.antipov.camerafiltersidp.filters.IdentityFilter
+import cn.louispeng.imagefilter.renderscript.ScriptC_ReliefFilter
+import com.antipov.camerafiltersidp.filters.*
 import com.antipov.coroutines.idp_renderscript.ScriptC_BrickFilter
+import com.antipov.coroutines.idp_renderscript.ScriptC_CleanGlassFilter
 import com.antipov.coroutines.idp_renderscript.ScriptC_bw
 import com.antipov.coroutines.idp_renderscript.ScriptC_identity
 import kotlinx.android.synthetic.main.activity_main.*
@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         processingThread.start()
         processingHandler = Handler(processingThread.looper)
 
-        scrollChoice.addItems(listOf("Original", "Black & White", "Brick"), 0)
+        scrollChoice.addItems(listOf("Original", "Black & White", "Brick", "Clean Glass", "ReliefFilter"), 0)
 
         cameraResult.holder.addCallback(SurfaceCreateCallback(onSurfaceCreated = { holder ->
             initRs(previewSize.width, previewSize.height)
@@ -79,6 +79,26 @@ class MainActivity : AppCompatActivity() {
                                 outputAllocation,
                                 processingHandler,
                                 ScriptC_BrickFilter(rs)
+                            )
+                        f.setup()
+                    }
+                    3 -> {
+                        val f =
+                            CleanGlassFilter(
+                                inputAllocation,
+                                outputAllocation,
+                                processingHandler,
+                                ScriptC_CleanGlassFilter(rs)
+                            )
+                        f.setup()
+                    }
+                    4 -> {
+                        val f =
+                            ReliefFilter(
+                                inputAllocation,
+                                outputAllocation,
+                                processingHandler,
+                                ScriptC_ReliefFilter(rs)
                             )
                         f.setup()
                     }
