@@ -9,7 +9,7 @@ class BlackAndWhiteFilter(
     outputAllocation: Allocation,
     processingHandler: Handler,
     private val scriptC: ScriptC_bw
-) : AbstractFilter(inputAllocation, outputAllocation, processingHandler) {
+) : AbstractFilter(inputAllocation, outputAllocation, processingHandler, scriptC) {
 
     override val name: String = "Black & White"
 

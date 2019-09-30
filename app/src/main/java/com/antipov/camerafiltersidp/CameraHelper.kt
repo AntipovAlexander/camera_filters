@@ -6,11 +6,15 @@ import android.util.Size
 import android.view.Surface
 import android.view.SurfaceHolder
 
-class CameraHelper(private val cameraManager: CameraManager, private val cameraId: String) :
+class CameraHelper(
+    private val cameraManager: CameraManager,
+    private val cameraId: String
+) :
     CameraDevice.StateCallback() {
 
     private var currentCamera: CameraDevice? = null
-    private var surface = arrayListOf<Surface>()
+    private var currentSession: CameraCaptureSession? = null
+    private lateinit var surface: Surface
 
     @SuppressLint("MissingPermission")
     fun openCamera() {
@@ -18,12 +22,13 @@ class CameraHelper(private val cameraManager: CameraManager, private val cameraI
     }
 
     fun closeCamera() {
+        currentSession?.close()
+        currentSession = null
         currentCamera?.close()
+        currentCamera = null
     }
 
-    fun isCameraOpened() = currentCamera == null
-
-    fun selectApropriateSize(): Size {
+    fun selectAppropriateSize(): Size {
         // Find a good size for output - largest 16:9 aspect ratio that's less than 720p
         val MAX_WIDTH = 1280
         val TARGET_ASPECT = 16f / 9f
@@ -51,22 +56,22 @@ class CameraHelper(private val cameraManager: CameraManager, private val cameraI
         return outputSize
     }
 
-    fun addSurface(s: Surface) {
-//         todo: maybe there is needed to texture.setDefaultBufferSize(1920,1080);
-        surface.add(s)
+    fun setSurface(s: Surface) {
+        this.surface = s
     }
 
     fun startPreview() {
         val builder = currentCamera?.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)?.apply {
-            surface.forEach { addTarget(it) }
+            addTarget(surface)
         }
-        currentCamera?.createCaptureSession(surface, object :
+        currentCamera?.createCaptureSession(listOf(surface), object :
             CameraCaptureSession.StateCallback() {
             override fun onConfigureFailed(session: CameraCaptureSession) {
-                session.toString()
+                currentSession = session
             }
 
             override fun onConfigured(session: CameraCaptureSession) {
+                currentSession = session
                 session.setRepeatingRequest(builder!!.build(), null, null)
             }
 
@@ -76,17 +81,23 @@ class CameraHelper(private val cameraManager: CameraManager, private val cameraI
 
     override fun onOpened(device: CameraDevice) {
         currentCamera = device
-
-        startPreview()
+//        try {
+            startPreview()
+//        } catch (e: CameraAccessException) {
+//            e.printStackTrace()
+//        } catch (e: IllegalArgumentException) {
+//            e.printStackTrace()
+//        }
     }
 
     override fun onDisconnected(device: CameraDevice) {
+        currentCamera = device
         closeCamera()
-        currentCamera = null
     }
 
-    override fun onError(p0: CameraDevice, p1: Int) {
-        currentCamera = null
+    override fun onError(device: CameraDevice, p1: Int) {
+        currentCamera = device
+        closeCamera()
     }
 
 }

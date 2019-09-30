@@ -3,7 +3,6 @@ package com.antipov.camerafiltersidp
 import android.content.Context
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraManager
-import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
 import android.renderscript.Allocation
@@ -11,12 +10,14 @@ import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.Type
 import android.util.Size
+import android.view.SurfaceHolder
 import androidx.appcompat.app.AppCompatActivity
 import com.antipov.camerafiltersidp.filters.FilterChanger
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
+    private lateinit var processingThread: HandlerThread
     private lateinit var previewSize: Size
     private lateinit var processingHandler: Handler
     private lateinit var outputAllocation: Allocation
@@ -26,25 +27,42 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var rs: RenderScript
     private lateinit var filterChanger: FilterChanger
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        initCamera()
+    override fun onStart() {
+        super.onStart()
         initProcessingThread()
+        initCamera()
         initRs()
         initInputAllocation(previewSize.width, previewSize.height)
         initOutputAllocation(previewSize.width, previewSize.height)
         initFilterChanger()
+
+    }
+
+    override fun onResume() {
+        super.onResume()
         setSurfaceCallback()
+    }
+
+    override fun onPause() {
+        cameraHelper.closeCamera()
+        stopBackgroundThread()
+        cameraResult.holder.removeCallback(surfaceCallback)
+        super.onPause()
+    }
+
+    private fun stopBackgroundThread() {
+        processingThread.quitSafely()
+        processingThread.join()
     }
 
     private fun initCamera() {
         cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
         cameraHelper = CameraHelper(cameraManager, "0")
-        previewSize = cameraHelper.selectApropriateSize()
+        previewSize = cameraHelper.selectAppropriateSize()
     }
 
     private fun initProcessingThread() {
-        val processingThread = HandlerThread("Filter handler")
+        processingThread = HandlerThread("Filter handler")
         processingThread.start()
         processingHandler = Handler(processingThread.looper)
     }
@@ -76,14 +94,29 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private fun initFilterChanger() {
         filterChanger = FilterChanger(inputAllocation, outputAllocation, processingHandler, rs)
+        filterChanger.init()
         filterChanger.setupWithSelector(scrollChoice)
     }
 
     private fun setSurfaceCallback() {
-        cameraResult.holder.addCallback(SurfaceCreateCallback(onSurfaceCreated = { holder ->
-            cameraHelper.addSurface(inputAllocation.surface)
-            cameraHelper.openCamera()
-            outputAllocation.surface = holder.surface
-        }))
+        cameraResult.holder.addCallback(surfaceCallback)
+    }
+
+    private val surfaceCallback: SurfaceCreateCallback =
+        SurfaceCreateCallback(onSurfaceChanged = ::runCamera)
+
+    private fun runCamera(holder: SurfaceHolder, a: Int, b: Int, c: Int) {
+        cameraHelper.setSurface(inputAllocation.surface)
+        outputAllocation.surface = holder.surface
+        cameraHelper.openCamera()
+    }
+
+    override fun onStop() {
+        rs.finish()
+        rs.destroy()
+        inputAllocation.destroy()
+        outputAllocation.destroy()
+        filterChanger.destroy()
+        super.onStop()
     }
 }

@@ -9,7 +9,7 @@ class ReliefFilter(
     outputAllocation: Allocation,
     processingHandler: Handler,
     private val scriptC: ScriptC_ReliefFilter
-) : AbstractFilter(inputAllocation, outputAllocation, processingHandler) {
+) : AbstractFilter(inputAllocation, outputAllocation, processingHandler, scriptC) {
 
     override val name: String = "Relief"
 

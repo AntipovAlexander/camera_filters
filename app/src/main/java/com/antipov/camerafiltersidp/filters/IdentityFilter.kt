@@ -9,7 +9,7 @@ class IdentityFilter(
     outputAllocation: Allocation,
     processingHandler: Handler,
     private val scriptC: ScriptC_identity
-) : AbstractFilter(inputAllocation, outputAllocation, processingHandler) {
+) : AbstractFilter(inputAllocation, outputAllocation, processingHandler, scriptC) {
 
     override val name: String = "Original"
 

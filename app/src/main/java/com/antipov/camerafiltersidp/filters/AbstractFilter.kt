@@ -2,20 +2,20 @@ package com.antipov.camerafiltersidp.filters
 
 import android.os.Handler
 import android.renderscript.Allocation
+import android.renderscript.ScriptC
 
 abstract class AbstractFilter(
     private val inputAllocation: Allocation,
     private val outputAllocation: Allocation,
-    private val processingHandler: Handler
+    private val processingHandler: Handler,
+    private val script: ScriptC
 ) : Runnable, Allocation.OnBufferAvailableListener {
 
     private var pendingFrames = 0
 
     abstract val name: String
 
-    fun setup() {
-        inputAllocation.setOnBufferAvailableListener(this)
-    }
+    fun setup() = inputAllocation.setOnBufferAvailableListener(this)
 
     override fun onBufferAvailable(buffer: Allocation) {
         synchronized(this) {
@@ -48,7 +48,6 @@ abstract class AbstractFilter(
     abstract fun performFiltering(inputAllocation: Allocation, outputAllocation: Allocation)
 
     fun destroy() {
-        processingHandler.removeCallbacks(this)
-        inputAllocation.setOnBufferAvailableListener(null)
+        script.destroy()
     }
 }

@@ -10,7 +10,7 @@ class BrickFilter(
     outputAllocation: Allocation,
     processingHandler: Handler,
     private val scriptC: ScriptC_BrickFilter
-) : AbstractFilter(inputAllocation, outputAllocation, processingHandler) {
+) : AbstractFilter(inputAllocation, outputAllocation, processingHandler, scriptC) {
 
     override val name: String = "Brick"
 

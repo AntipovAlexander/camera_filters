@@ -9,7 +9,7 @@ class CleanGlassFilter(
     outputAllocation: Allocation,
     processingHandler: Handler,
     private val scriptC: ScriptC_CleanGlassFilter
-) : AbstractFilter(inputAllocation, outputAllocation, processingHandler) {
+) : AbstractFilter(inputAllocation, outputAllocation, processingHandler, scriptC) {
 
     override val name: String = "Clean Glass"
 

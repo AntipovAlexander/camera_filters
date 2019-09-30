@@ -11,48 +11,58 @@ import com.antipov.coroutines.idp_renderscript.ScriptC_identity
 import com.webianks.library.scroll_choice.ScrollChoice
 
 class FilterChanger(
-    inputAllocation: Allocation,
-    outputAllocation: Allocation,
-    processingHandler: Handler,
-    renderScript: RenderScript
+    private val inputAllocation: Allocation,
+    private val outputAllocation: Allocation,
+    private val processingHandler: Handler,
+    private val renderScript: RenderScript
 ) {
 
     private lateinit var currentFilter: AbstractFilter
 
-    private val filters = arrayListOf(
-        IdentityFilter(
-            inputAllocation,
-            outputAllocation,
-            processingHandler,
-            ScriptC_identity(renderScript)
-        ),
-        BlackAndWhiteFilter(
-            inputAllocation,
-            outputAllocation,
-            processingHandler,
-            ScriptC_bw(renderScript)
-        ),
-        BrickFilter(
-            inputAllocation,
-            outputAllocation,
-            processingHandler,
-            ScriptC_BrickFilter(renderScript)
-        ),
-        CleanGlassFilter(
-            inputAllocation,
-            outputAllocation,
-            processingHandler,
-            ScriptC_CleanGlassFilter(renderScript)
-        ),
-        ReliefFilter(
-            inputAllocation,
-            outputAllocation,
-            processingHandler,
-            ScriptC_ReliefFilter(renderScript)
-        )
-    )
+    private val filters = arrayListOf<AbstractFilter>()
 
-    init {
+    private fun produceFilters(
+        inputAllocation: Allocation,
+        outputAllocation: Allocation,
+        processingHandler: Handler,
+        renderScript: RenderScript
+    ): ArrayList<AbstractFilter> {
+        return arrayListOf(
+            IdentityFilter(
+                inputAllocation,
+                outputAllocation,
+                processingHandler,
+                ScriptC_identity(renderScript)
+            ),
+            BlackAndWhiteFilter(
+                inputAllocation,
+                outputAllocation,
+                processingHandler,
+                ScriptC_bw(renderScript)
+            ),
+            BrickFilter(
+                inputAllocation,
+                outputAllocation,
+                processingHandler,
+                ScriptC_BrickFilter(renderScript)
+            ),
+            CleanGlassFilter(
+                inputAllocation,
+                outputAllocation,
+                processingHandler,
+                ScriptC_CleanGlassFilter(renderScript)
+            ),
+            ReliefFilter(
+                inputAllocation,
+                outputAllocation,
+                processingHandler,
+                ScriptC_ReliefFilter(renderScript)
+            )
+        )
+    }
+
+    fun init() {
+        filters.addAll(produceFilters(inputAllocation, outputAllocation, processingHandler, renderScript))
         currentFilter = filters[0]
         currentFilter.setup()
     }
@@ -70,5 +80,10 @@ class FilterChanger(
         scrollChoice.setOnItemSelectedListener { _, position, _ ->
             filters[position].setup()
         }
+    }
+
+    fun destroy() {
+        filters.forEach { it.destroy() }
+        filters.clear()
     }
 }
