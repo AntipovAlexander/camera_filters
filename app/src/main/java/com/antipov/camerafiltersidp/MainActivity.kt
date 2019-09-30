@@ -108,7 +108,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private val surfaceCallback: SurfaceCreateCallback =
         SurfaceCreateCallback(onSurfaceChanged = ::runCamera)
 
-    private fun runCamera(holder: SurfaceHolder, a: Int, b: Int, c: Int) {
+    private fun runCamera(holder: SurfaceHolder) {
         cameraHelper.setSurface(inputAllocation.surface)
         outputAllocation.surface = holder.surface
         cameraHelper.openCamera()
