@@ -3,7 +3,6 @@ package com.antipov.camerafiltersidp.filters
 import android.os.Handler
 import android.renderscript.Allocation
 import cn.louispeng.imagefilter.renderscript.ScriptC_ReliefFilter
-import com.antipov.coroutines.idp_renderscript.ScriptC_CleanGlassFilter
 
 class ReliefFilter(
     inputAllocation: Allocation,
@@ -11,6 +10,8 @@ class ReliefFilter(
     processingHandler: Handler,
     private val scriptC: ScriptC_ReliefFilter
 ) : AbstractFilter(inputAllocation, outputAllocation, processingHandler) {
+
+    override val name: String = "Relief"
 
     override fun performFiltering(inputAllocation: Allocation, outputAllocation: Allocation) {
         scriptC._in = inputAllocation

@@ -23,7 +23,7 @@ class CameraHelper(private val cameraManager: CameraManager, private val cameraI
 
     fun isCameraOpened() = currentCamera == null
 
-    fun configureSurfaces(): Size {
+    fun selectApropriateSize(): Size {
         // Find a good size for output - largest 16:9 aspect ratio that's less than 720p
         val MAX_WIDTH = 1280
         val TARGET_ASPECT = 16f / 9f

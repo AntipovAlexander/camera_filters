@@ -12,15 +12,10 @@ import android.renderscript.RenderScript
 import android.renderscript.Type
 import android.util.Size
 import androidx.appcompat.app.AppCompatActivity
-import cn.louispeng.imagefilter.renderscript.ScriptC_ReliefFilter
-import com.antipov.camerafiltersidp.filters.*
-import com.antipov.coroutines.idp_renderscript.ScriptC_BrickFilter
-import com.antipov.coroutines.idp_renderscript.ScriptC_CleanGlassFilter
-import com.antipov.coroutines.idp_renderscript.ScriptC_bw
-import com.antipov.coroutines.idp_renderscript.ScriptC_identity
+import com.antipov.camerafiltersidp.filters.FilterChanger
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private lateinit var previewSize: Size
     private lateinit var processingHandler: Handler
@@ -29,86 +24,36 @@ class MainActivity : AppCompatActivity() {
     private lateinit var cameraManager: CameraManager
     private lateinit var cameraHelper: CameraHelper
     private lateinit var rs: RenderScript
+    private lateinit var filterChanger: FilterChanger
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        initCamera()
+        initProcessingThread()
+        initRs()
+        initInputAllocation(previewSize.width, previewSize.height)
+        initOutputAllocation(previewSize.width, previewSize.height)
+        initFilterChanger()
+        setSurfaceCallback()
+    }
+
+    private fun initCamera() {
         cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
         cameraHelper = CameraHelper(cameraManager, "0")
-        previewSize = cameraHelper.configureSurfaces()
+        previewSize = cameraHelper.selectApropriateSize()
+    }
 
-
+    private fun initProcessingThread() {
         val processingThread = HandlerThread("Filter handler")
         processingThread.start()
         processingHandler = Handler(processingThread.looper)
-
-        scrollChoice.addItems(listOf("Original", "Black & White", "Brick", "Clean Glass", "ReliefFilter"), 0)
-
-        cameraResult.holder.addCallback(SurfaceCreateCallback(onSurfaceCreated = { holder ->
-            initRs(previewSize.width, previewSize.height)
-            cameraHelper.addSurface(inputAllocation.surface)
-            cameraHelper.openCamera()
-            outputAllocation.surface = holder.surface
-            scrollChoice.selectedItemPosition = 0
-            scrollChoice.setOnItemSelectedListener { scrollChoice, position, name ->
-                when (position) {
-                    0 -> {
-                        val f =
-                            IdentityFilter(
-                                inputAllocation,
-                                outputAllocation,
-                                processingHandler,
-                                ScriptC_identity(rs)
-                            )
-                        f.setup()
-                    }
-                    1 -> {
-                        val f =
-                            BlackAndWhiteFilter(
-                                inputAllocation,
-                                outputAllocation,
-                                processingHandler,
-                                ScriptC_bw(rs)
-                            )
-                        f.setup()
-                    }
-                    2 -> {
-                        val f =
-                            BrickFilter(
-                                inputAllocation,
-                                outputAllocation,
-                                processingHandler,
-                                ScriptC_BrickFilter(rs)
-                            )
-                        f.setup()
-                    }
-                    3 -> {
-                        val f =
-                            CleanGlassFilter(
-                                inputAllocation,
-                                outputAllocation,
-                                processingHandler,
-                                ScriptC_CleanGlassFilter(rs)
-                            )
-                        f.setup()
-                    }
-                    4 -> {
-                        val f =
-                            ReliefFilter(
-                                inputAllocation,
-                                outputAllocation,
-                                processingHandler,
-                                ScriptC_ReliefFilter(rs)
-                            )
-                        f.setup()
-                    }
-                }
-            }
-        }))
     }
 
-    private fun initRs(width: Int, height: Int) {
+    private fun initRs() {
         rs = RenderScript.create(this)
+    }
+
+    private fun initInputAllocation(width: Int, height: Int) {
         val yuvTypeBuilder = Type.Builder(rs, Element.YUV(rs))
         yuvTypeBuilder.setX(width)
         yuvTypeBuilder.setY(height)
@@ -117,7 +62,9 @@ class MainActivity : AppCompatActivity() {
             rs, yuvTypeBuilder.create(),
             Allocation.USAGE_IO_INPUT or Allocation.USAGE_SCRIPT
         )
+    }
 
+    private fun initOutputAllocation(width: Int, height: Int) {
         val rgbTypeBuilder = Type.Builder(rs, Element.RGBA_8888(rs))
         rgbTypeBuilder.setX(width)
         rgbTypeBuilder.setY(height)
@@ -125,12 +72,18 @@ class MainActivity : AppCompatActivity() {
             rs, rgbTypeBuilder.create(),
             Allocation.USAGE_IO_OUTPUT or Allocation.USAGE_SCRIPT
         )
-        val f = IdentityFilter(
-            inputAllocation,
-            outputAllocation,
-            processingHandler,
-            ScriptC_identity(rs)
-        )
-        f.setup()
+    }
+
+    private fun initFilterChanger() {
+        filterChanger = FilterChanger(inputAllocation, outputAllocation, processingHandler, rs)
+        filterChanger.setupWithSelector(scrollChoice)
+    }
+
+    private fun setSurfaceCallback() {
+        cameraResult.holder.addCallback(SurfaceCreateCallback(onSurfaceCreated = { holder ->
+            cameraHelper.addSurface(inputAllocation.surface)
+            cameraHelper.openCamera()
+            outputAllocation.surface = holder.surface
+        }))
     }
 }

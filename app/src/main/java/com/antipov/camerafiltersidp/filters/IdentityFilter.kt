@@ -11,6 +11,8 @@ class IdentityFilter(
     private val scriptC: ScriptC_identity
 ) : AbstractFilter(inputAllocation, outputAllocation, processingHandler) {
 
+    override val name: String = "Original"
+
     override fun performFiltering(inputAllocation: Allocation, outputAllocation: Allocation) {
         scriptC._in = inputAllocation
         scriptC.forEach_root(outputAllocation)

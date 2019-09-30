@@ -11,6 +11,8 @@ class CleanGlassFilter(
     private val scriptC: ScriptC_CleanGlassFilter
 ) : AbstractFilter(inputAllocation, outputAllocation, processingHandler) {
 
+    override val name: String = "Clean Glass"
+
     override fun performFiltering(inputAllocation: Allocation, outputAllocation: Allocation) {
         scriptC._in = inputAllocation
         scriptC.invoke_setup()
