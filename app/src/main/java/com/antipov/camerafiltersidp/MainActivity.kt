@@ -3,6 +3,7 @@ package com.antipov.camerafiltersidp
 import android.content.Context
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraManager
+import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
 import android.renderscript.Allocation
@@ -27,19 +28,22 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var rs: RenderScript
     private lateinit var filterChanger: FilterChanger
 
-    override fun onStart() {
-        super.onStart()
-        initProcessingThread()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         initCamera()
         initRs()
+        initFilterChanger()
+    }
+
+    override fun onStart() {
+        super.onStart()
         initInputAllocation(previewSize.width, previewSize.height)
         initOutputAllocation(previewSize.width, previewSize.height)
-        initFilterChanger()
-
     }
 
     override fun onResume() {
         super.onResume()
+        initProcessingThread()
         setSurfaceCallback()
     }
 
@@ -93,8 +97,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     private fun initFilterChanger() {
-        filterChanger = FilterChanger(inputAllocation, outputAllocation, processingHandler, rs)
-        filterChanger.init()
+        filterChanger = FilterChanger(rs)
         filterChanger.setupWithSelector(scrollChoice)
     }
 
@@ -109,14 +112,15 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         cameraHelper.setSurface(inputAllocation.surface)
         outputAllocation.surface = holder.surface
         cameraHelper.openCamera()
+        filterChanger.startFiltering(inputAllocation, outputAllocation, processingHandler)
     }
 
-    override fun onStop() {
-        rs.finish()
-        rs.destroy()
+    override fun onDestroy() {
         inputAllocation.destroy()
         outputAllocation.destroy()
+        rs.finish()
+        rs.destroy()
         filterChanger.destroy()
-        super.onStop()
+        super.onDestroy()
     }
 }

@@ -5,9 +5,9 @@ import android.renderscript.Allocation
 import android.renderscript.ScriptC
 
 abstract class AbstractFilter(
-    private val inputAllocation: Allocation,
-    private val outputAllocation: Allocation,
-    private val processingHandler: Handler,
+    val inputAllocation: Allocation,
+    val outputAllocation: Allocation,
+    val processingHandler: Handler,
     private val script: ScriptC
 ) : Runnable, Allocation.OnBufferAvailableListener {
 
