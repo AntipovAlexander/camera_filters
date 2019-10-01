@@ -3,6 +3,9 @@ package com.antipov.camerafiltersidp.filters
 import android.os.Handler
 import android.renderscript.Allocation
 import android.renderscript.RenderScript
+import cn.louispeng.imagefilter.renderscript.ScriptC_BigBrother
+import cn.louispeng.imagefilter.renderscript.ScriptC_BrightContrastFilter
+import cn.louispeng.imagefilter.renderscript.ScriptC_ColorQuantizeFilter
 import cn.louispeng.imagefilter.renderscript.ScriptC_ReliefFilter
 import com.antipov.coroutines.idp_renderscript.ScriptC_BrickFilter
 import com.antipov.coroutines.idp_renderscript.ScriptC_CleanGlassFilter
@@ -24,7 +27,10 @@ class FilterChanger(
         1 to "Black & White",
         2 to "Brick",
         3 to "Clean glass",
-        4 to "Relief"
+        4 to "Relief",
+        5 to "Big Brother",
+        6 to "Bright contrast",
+        7 to "Color quantizer"
     )
 
     private fun makeFilter(input: Allocation, output: Allocation, handler: Handler, position: Int): AbstractFilter {
@@ -34,6 +40,9 @@ class FilterChanger(
             2 -> FilterFactory.create(ScriptC_BrickFilter(renderScript), input, output, handler, listener)
             3 -> FilterFactory.create(ScriptC_CleanGlassFilter(renderScript), input, output, handler, listener)
             4 -> FilterFactory.create(ScriptC_ReliefFilter(renderScript), input, output, handler, listener)
+            5 -> FilterFactory.create(ScriptC_BigBrother(renderScript), input, output, handler, listener)
+            6 -> FilterFactory.create(ScriptC_BrightContrastFilter(renderScript), input, output, handler, listener)
+            7 -> FilterFactory.create(ScriptC_ColorQuantizeFilter(renderScript), input, output, handler, listener)
             else -> throw RuntimeException("Wrong filter position")
         }
     }

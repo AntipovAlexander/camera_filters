@@ -3,6 +3,9 @@ package com.antipov.camerafiltersidp.filters
 import android.os.Handler
 import android.renderscript.Allocation
 import android.renderscript.ScriptC
+import cn.louispeng.imagefilter.renderscript.ScriptC_BigBrother
+import cn.louispeng.imagefilter.renderscript.ScriptC_BrightContrastFilter
+import cn.louispeng.imagefilter.renderscript.ScriptC_ColorQuantizeFilter
 import cn.louispeng.imagefilter.renderscript.ScriptC_ReliefFilter
 import com.antipov.coroutines.idp_renderscript.ScriptC_BrickFilter
 import com.antipov.coroutines.idp_renderscript.ScriptC_CleanGlassFilter
@@ -49,6 +52,27 @@ class FilterFactory {
                     script
                 )
                 is ScriptC_ReliefFilter -> ReliefFilter(
+                    input,
+                    output,
+                    handler,
+                    listener,
+                    script
+                )
+                is ScriptC_BigBrother -> BigBrotherFilter(
+                    input,
+                    output,
+                    handler,
+                    listener,
+                    script
+                )
+                is ScriptC_BrightContrastFilter -> BrightContrastFilter(
+                    input,
+                    output,
+                    handler,
+                    listener,
+                    script
+                )
+                is ScriptC_ColorQuantizeFilter -> ColorQuantizeFilter(
                     input,
                     output,
                     handler,
