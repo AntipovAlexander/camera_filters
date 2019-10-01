@@ -11,8 +11,6 @@ class BlackAndWhiteFilter(
     private val scriptC: ScriptC_bw
 ) : AbstractFilter(inputAllocation, outputAllocation, processingHandler, scriptC) {
 
-    override val name: String = "Black & White"
-
     override fun performFiltering(inputAllocation: Allocation, outputAllocation: Allocation) {
         scriptC._in = inputAllocation
         scriptC.forEach_root(outputAllocation)

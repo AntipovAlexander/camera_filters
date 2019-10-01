@@ -9,64 +9,34 @@ import com.antipov.coroutines.idp_renderscript.ScriptC_CleanGlassFilter
 import com.antipov.coroutines.idp_renderscript.ScriptC_bw
 import com.antipov.coroutines.idp_renderscript.ScriptC_identity
 import com.webianks.library.scroll_choice.ScrollChoice
+import java.util.*
 
-class FilterChanger(
-    private val renderScript: RenderScript
-) {
+class FilterChanger(private val renderScript: RenderScript) {
 
     private var currentFilter: AbstractFilter? = null
     private var lastFilter: Int = 0
 
-    private fun makeFilter(
-        inputAllocation: Allocation,
-        outputAllocation: Allocation,
-        processingHandler: Handler,
-        position: Int
-    ): AbstractFilter {
+    private var filtersMap: LinkedHashMap<Int, String> = linkedMapOf(
+        0 to "Original",
+        1 to "Black & White",
+        2 to "Brick",
+        3 to "Clean glass",
+        4 to "Relief"
+    )
+
+    private fun makeFilter(input: Allocation, output: Allocation, handler: Handler, position: Int): AbstractFilter {
         return when (position) {
-            0 -> IdentityFilter(
-                inputAllocation,
-                outputAllocation,
-                processingHandler,
-                ScriptC_identity(renderScript)
-            )
-            1 -> BlackAndWhiteFilter(
-                inputAllocation,
-                outputAllocation,
-                processingHandler,
-                ScriptC_bw(renderScript)
-            )
-            2 -> BrickFilter(
-                inputAllocation,
-                outputAllocation,
-                processingHandler,
-                ScriptC_BrickFilter(renderScript)
-            )
-            3 -> CleanGlassFilter(
-                inputAllocation,
-                outputAllocation,
-                processingHandler,
-                ScriptC_CleanGlassFilter(renderScript)
-            )
-            4 -> ReliefFilter(
-                inputAllocation,
-                outputAllocation,
-                processingHandler,
-                ScriptC_ReliefFilter(renderScript)
-            )
+            0 -> FilterFactory.create(ScriptC_identity(renderScript), input, output, handler)
+            1 -> FilterFactory.create(ScriptC_bw(renderScript), input, output, handler)
+            2 -> FilterFactory.create(ScriptC_BrickFilter(renderScript), input, output, handler)
+            3 -> FilterFactory.create(ScriptC_CleanGlassFilter(renderScript), input, output, handler)
+            4 -> FilterFactory.create(ScriptC_ReliefFilter(renderScript), input, output, handler)
             else -> throw RuntimeException("Wrong filter position")
         }
     }
 
     fun setupWithSelector(scrollChoice: ScrollChoice) {
-        scrollChoice.addItems(
-            listOf(
-                "1",
-                "2",
-                "3",
-                "4"
-            ), 0
-        )
+        scrollChoice.addItems(filtersMap.values.toList(), 0)
         scrollChoice.setOnItemSelectedListener { _, position, _ ->
             lastFilter = position
             currentFilter = currentFilter?.let { nonNullFilter ->
@@ -81,11 +51,7 @@ class FilterChanger(
         }
     }
 
-    fun startFiltering(
-        inputAllocation: Allocation,
-        outputAllocation: Allocation,
-        processingHandler: Handler
-    ) {
+    fun startFiltering(inputAllocation: Allocation, outputAllocation: Allocation, processingHandler: Handler) {
         currentFilter?.destroy()
         currentFilter = makeFilter(
             inputAllocation,

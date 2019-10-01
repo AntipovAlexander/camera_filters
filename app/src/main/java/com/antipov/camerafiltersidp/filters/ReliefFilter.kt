@@ -11,8 +11,6 @@ class ReliefFilter(
     private val scriptC: ScriptC_ReliefFilter
 ) : AbstractFilter(inputAllocation, outputAllocation, processingHandler, scriptC) {
 
-    override val name: String = "Relief"
-
     override fun performFiltering(inputAllocation: Allocation, outputAllocation: Allocation) {
         scriptC._in = inputAllocation
         scriptC.invoke_setup()

@@ -12,8 +12,6 @@ class BrickFilter(
     private val scriptC: ScriptC_BrickFilter
 ) : AbstractFilter(inputAllocation, outputAllocation, processingHandler, scriptC) {
 
-    override val name: String = "Brick"
-
     override fun performFiltering(inputAllocation: Allocation, outputAllocation: Allocation) {
         scriptC._in = inputAllocation
         scriptC.forEach_root(outputAllocation)

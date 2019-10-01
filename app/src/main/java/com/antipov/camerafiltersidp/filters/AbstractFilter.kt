@@ -13,8 +13,6 @@ abstract class AbstractFilter(
 
     private var pendingFrames = 0
 
-    abstract val name: String
-
     fun setup() = inputAllocation.setOnBufferAvailableListener(this)
 
     override fun onBufferAvailable(buffer: Allocation) {
