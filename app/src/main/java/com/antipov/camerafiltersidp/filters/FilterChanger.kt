@@ -11,7 +11,10 @@ import com.antipov.coroutines.idp_renderscript.ScriptC_identity
 import com.webianks.library.scroll_choice.ScrollChoice
 import java.util.*
 
-class FilterChanger(private val renderScript: RenderScript) {
+class FilterChanger(
+    private val renderScript: RenderScript,
+    private val listener: AbstractFilter.FpsListener
+) : ScrollChoice.OnItemSelectedListener {
 
     private var currentFilter: AbstractFilter? = null
     private var lastFilter: Int = 0
@@ -26,39 +29,32 @@ class FilterChanger(private val renderScript: RenderScript) {
 
     private fun makeFilter(input: Allocation, output: Allocation, handler: Handler, position: Int): AbstractFilter {
         return when (position) {
-            0 -> FilterFactory.create(ScriptC_identity(renderScript), input, output, handler)
-            1 -> FilterFactory.create(ScriptC_bw(renderScript), input, output, handler)
-            2 -> FilterFactory.create(ScriptC_BrickFilter(renderScript), input, output, handler)
-            3 -> FilterFactory.create(ScriptC_CleanGlassFilter(renderScript), input, output, handler)
-            4 -> FilterFactory.create(ScriptC_ReliefFilter(renderScript), input, output, handler)
+            0 -> FilterFactory.create(ScriptC_identity(renderScript), input, output, handler, listener)
+            1 -> FilterFactory.create(ScriptC_bw(renderScript), input, output, handler, listener)
+            2 -> FilterFactory.create(ScriptC_BrickFilter(renderScript), input, output, handler, listener)
+            3 -> FilterFactory.create(ScriptC_CleanGlassFilter(renderScript), input, output, handler, listener)
+            4 -> FilterFactory.create(ScriptC_ReliefFilter(renderScript), input, output, handler, listener)
             else -> throw RuntimeException("Wrong filter position")
         }
     }
 
     fun setupWithSelector(scrollChoice: ScrollChoice) {
         scrollChoice.addItems(filtersMap.values.toList(), 0)
-        scrollChoice.setOnItemSelectedListener { _, position, _ ->
-            lastFilter = position
-            currentFilter = currentFilter?.let { nonNullFilter ->
-                makeFilter(
-                    nonNullFilter.inputAllocation,
-                    nonNullFilter.outputAllocation,
-                    nonNullFilter.processingHandler,
-                    lastFilter
-                )
-            }
-            currentFilter?.setup()
-        }
+        scrollChoice.setOnItemSelectedListener(this)
     }
 
-    fun startFiltering(inputAllocation: Allocation, outputAllocation: Allocation, processingHandler: Handler) {
+    override fun onItemSelected(scrollChoice: ScrollChoice?, position: Int, name: String?) {
+        lastFilter = position
+        currentFilter?.cancelFpsCount()
+        currentFilter = currentFilter?.let { filter ->
+            makeFilter(filter.inputAllocation, filter.outputAllocation, filter.processingHandler, lastFilter)
+        }
+        currentFilter?.setup()
+    }
+
+    fun startFiltering(input: Allocation, output: Allocation, handler: Handler) {
         currentFilter?.destroy()
-        currentFilter = makeFilter(
-            inputAllocation,
-            outputAllocation,
-            processingHandler,
-            lastFilter
-        )
+        currentFilter = makeFilter(input, output, handler, lastFilter)
         currentFilter?.setup()
     }
 

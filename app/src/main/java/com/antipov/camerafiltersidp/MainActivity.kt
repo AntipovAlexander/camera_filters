@@ -1,5 +1,6 @@
 package com.antipov.camerafiltersidp
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraManager
@@ -13,10 +14,11 @@ import android.renderscript.Type
 import android.util.Size
 import android.view.SurfaceHolder
 import androidx.appcompat.app.AppCompatActivity
+import com.antipov.camerafiltersidp.filters.AbstractFilter
 import com.antipov.camerafiltersidp.filters.FilterChanger
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity(R.layout.activity_main) {
+class MainActivity : AppCompatActivity(R.layout.activity_main), AbstractFilter.FpsListener {
 
     private lateinit var processingThread: HandlerThread
     private lateinit var previewSize: Size
@@ -97,7 +99,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     private fun initFilterChanger() {
-        filterChanger = FilterChanger(rs)
+        filterChanger = FilterChanger(rs, this)
         filterChanger.setupWithSelector(scrollChoice)
     }
 
@@ -113,6 +115,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         outputAllocation.surface = holder.surface
         cameraHelper.openCamera()
         filterChanger.startFiltering(inputAllocation, outputAllocation, processingHandler)
+    }
+
+    @SuppressLint("SetTextI18n")
+    override fun onFpsUpdated(fps: Int) {
+        fpsView.post { fpsView.text = "Fps: $fps" }
     }
 
     override fun onDestroy() {

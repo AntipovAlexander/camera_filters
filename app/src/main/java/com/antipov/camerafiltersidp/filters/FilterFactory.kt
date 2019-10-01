@@ -16,37 +16,43 @@ class FilterFactory {
             script: ScriptC,
             input: Allocation,
             output: Allocation,
-            handler: Handler
+            handler: Handler,
+            listener: AbstractFilter.FpsListener? = null
         ): AbstractFilter {
             return when (script) {
                 is ScriptC_identity -> IdentityFilter(
                     input,
                     output,
                     handler,
+                    listener,
                     script
                 )
                 is ScriptC_bw -> BlackAndWhiteFilter(
                     input,
                     output,
                     handler,
+                    listener,
                     script
                 )
                 is ScriptC_BrickFilter -> BrickFilter(
                     input,
                     output,
                     handler,
+                    listener,
                     script
                 )
                 is ScriptC_CleanGlassFilter -> CleanGlassFilter(
                     input,
                     output,
                     handler,
+                    listener,
                     script
                 )
                 is ScriptC_ReliefFilter -> ReliefFilter(
                     input,
                     output,
                     handler,
+                    listener,
                     script
                 )
                 else -> throw RuntimeException("Unknown ScriptC")

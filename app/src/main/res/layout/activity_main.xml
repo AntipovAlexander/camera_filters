@@ -26,4 +26,15 @@
         app:scroll_selected_item_text_color="#FFFFFF"
         android:layout_height="match_parent" />
 
+    <TextView
+        android:id="@+id/fpsView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:textColor="#00FF04"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:padding="16dp"
+        tools:text="Fps: 666" />
+
 </RelativeLayout>
