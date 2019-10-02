@@ -1,7 +1,10 @@
 package com.antipov.camerafiltersidp
 
 import android.annotation.SuppressLint
-import android.hardware.camera2.*
+import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraManager
 import android.util.Size
 import android.view.Surface
 import android.view.SurfaceHolder
@@ -81,13 +84,7 @@ class CameraHelper(
 
     override fun onOpened(device: CameraDevice) {
         currentCamera = device
-//        try {
-            startPreview()
-//        } catch (e: CameraAccessException) {
-//            e.printStackTrace()
-//        } catch (e: IllegalArgumentException) {
-//            e.printStackTrace()
-//        }
+        startPreview()
     }
 
     override fun onDisconnected(device: CameraDevice) {

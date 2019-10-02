@@ -69,5 +69,8 @@ class FilterChanger(
 
     fun destroy() {
         currentFilter?.destroy()
+        stopFpsCounter()
     }
+
+    fun stopFpsCounter() = currentFilter?.cancelFpsCount()
 }

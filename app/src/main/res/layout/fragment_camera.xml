@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fitsSystemWindows="false"
+    android:orientation="vertical">
+
+    <com.antipov.camerafiltersidp.FixedAspectSurfaceView
+        android:id="@+id/cameraResult"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <com.webianks.library.scroll_choice.ScrollChoice
+        android:id="@+id/scrollChoice"
+        android:layout_width="match_parent"
+        app:scroll_atmospheric="true"
+        app:scroll_background_color="#00000000"
+        app:scroll_item_align="right"
+        android:paddingRight="16dp"
+        app:scroll_item_text_color="#f5f5f5"
+        app:scroll_item_text_size="24sp"
+        app:scroll_selected_item_background="#00000000"
+        app:scroll_selected_item_text_color="#FFFFFF"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/fpsView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:textColor="#00FF04"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:padding="16dp"
+        tools:text="Fps: 666" />
+
+</RelativeLayout>
