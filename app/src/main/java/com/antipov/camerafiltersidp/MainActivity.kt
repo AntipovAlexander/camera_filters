@@ -25,6 +25,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         if (requestCode == permissionsRequest && grantResults.size == 1) runCamera(null)
     }
 
+
     private fun runCamera(savedInstanceState: Bundle?) {
         savedInstanceState ?: supportFragmentManager.beginTransaction()
             .replace(R.id.container, CameraFragment(), "camera")
