@@ -24,9 +24,9 @@ uchar4 __attribute__((kernel)) root(int x, int y)  {
 
 	float4 f4 = rsUnpackColor8888(rgba);	// extract RGBA values, see rs_core.rsh
 	
-	float R = (((int) (f4.r * 255.0f * 0.003921569f * Levels)) / Levels) * 255.0f;
-	float G = (((int) (f4.g * 255.0f * 0.003921569f * Levels)) / Levels) * 255.0f;
-	float B = (((int) (f4.b * 255.0f * 0.003921569f * Levels)) / Levels) * 255.0f;
+	float R = (((int) (f4.r * 255.0f * Mult * Levels)) / Levels) * 255.0f;
+	float G = (((int) (f4.g * 255.0f * Mult * Levels)) / Levels) * 255.0f;
+	float B = (((int) (f4.b * 255.0f * Mult * Levels)) / Levels) * 255.0f;
         
     float3 f3 = {R / 255.0f, G / 255.0f, B / 255.0f};
     return rsPackColorTo8888(f3);

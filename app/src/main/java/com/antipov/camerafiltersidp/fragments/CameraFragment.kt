@@ -136,12 +136,17 @@ class CameraFragment : Fragment(), AbstractFilter.FpsListener {
         fpsView?.post { fpsView?.text = "Fps: $fps" }
     }
 
-    override fun onDestroyView() {
-        filterChanger.destroy()
+    override fun onStop() {
         inputAllocation.destroy()
         outputAllocation.destroy()
+        super.onStop()
+    }
+
+    override fun onDestroyView() {
+        filterChanger.destroy()
         rs.finish()
         rs.destroy()
+        cameraHelper.closeCamera()
         super.onDestroyView()
     }
 }
